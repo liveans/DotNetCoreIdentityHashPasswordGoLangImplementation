@@ -119,15 +119,12 @@ func VerifyPassword(hashedPassword string, enteredPassword string) error {
 
 	salt := make([]byte, saltLength)
 	copy(salt, decodedHashedPassword[headerByteLength:headerByteLength + saltLength])
-	fmt.Println("VerifyPassword Salt : ")
-	fmt.Println(salt)
 	subKeyLength := len(decodedHashedPassword) - headerByteLength - len(salt)
 	if requestedLength != subKeyLength {
 		return fmt.Errorf("SubKeyLength is not verified")
 	}
 
 	expectedSubKey := make([]byte, subKeyLength)
-	fmt.Println(decodedHashedPassword)
 	copy(expectedSubKey, decodedHashedPassword[headerByteLength + saltLength:headerByteLength + saltLength + subKeyLength])
 	actualSubKey := pbkdf2.Key([]byte(enteredPassword), salt, iterCount, subKeyLength, sha256.New)
 	if bytes.Compare(actualSubKey, expectedSubKey) != 0 {
